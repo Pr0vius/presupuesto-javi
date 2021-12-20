@@ -1,11 +1,6 @@
 const process = require("process");
 require("dotenv").config();
 
-// const parseBoolean = value => {
-//   let boolValue = value === "true" ? true : false;
-//   return boolValue;
-// };
-
 module.exports = {
   port: process.env.PORT || 3000,
   api: {
@@ -13,5 +8,8 @@ module.exports = {
   },
   logger: {
     level: process.env.LOG_LEVEL || "info",
+  },
+  database: {
+    url: process.env.MONGODB_URI,
   },
 };
