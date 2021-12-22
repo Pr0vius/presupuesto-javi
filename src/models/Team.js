@@ -8,4 +8,4 @@ const team = new Schema({
   events: [{ type: Schema.Types.ObjectId, ref: "Event" }]
 });
 
-module.export = model("Team", team);
+module.exports = model("Team", team);

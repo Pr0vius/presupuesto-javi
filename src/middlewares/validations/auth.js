@@ -1,5 +1,5 @@
 const { check } = require("express-validator");
-const { validResult, emailIsUniqueValidator } = require("./funtions");
+const { validResult, emailIsUniqueValidator } = require("./functions");
 
 const firstnameValidator = check("firstname")
   .isLength({ max: 50 })
