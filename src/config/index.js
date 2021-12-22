@@ -12,4 +12,8 @@ module.exports = {
   database: {
     url: process.env.MONGODB_URI,
   },
+  jwt: {
+    secret: process.env.JWT_SECRET || "secret",
+    expires: process.env.JWT_EXPIRES || "1d",
+  },
 };
