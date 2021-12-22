@@ -62,12 +62,16 @@ class AuthService {
     if (!token) {
       throw new ErrorResponse(401, "Authentication Failed", "Token Required");
     }
+    if (!token.startsWith("Bearer")) {
+      throw new ErrorResponse(400, "Authentication Failed", "Invalid Token");
+    }
+    token = token.split(" ")[1];
     try {
       const decoded = jwt.verify(token, config.jwt.secret);
       const id = decoded.id;
       const user = await UserRepository.findUserById(id);
       if (!user) {
-        throw new ErrorResponse(401, "Authentication Failed", "Invalid Token");
+        throw new ErrorResponse(400, "Authentication Failed", "Invalid Token");
       }
       return {
         _id: user._id,
