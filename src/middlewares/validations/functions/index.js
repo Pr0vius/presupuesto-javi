@@ -1,16 +1,16 @@
 const { validationResult } = require("express-validator");
 const ErrorResponse = require("../../../helpers/ErrorResponse");
 const userRepo = require("../../../repository/User");
-const AuthService = require("../../../service/auth");
+const AuthService = require("../../../services/auth");
 
-const emailIsUniqueValidator = async email => {
+exports.emailIsUniqueValidator = async email => {
   const userFound = await userRepo.findByEmail(email);
   if (userFound) {
     throw new ErrorResponse(400, undefined, "Username already exist");
   }
 };
 
-const validateJWT = async (req, res, next) => {
+exports.validateJWT = async (req, res, next) => {
   try {
     const token = req.header("Authorization");
     const user = await AuthService.validateToken(token);
@@ -28,7 +28,7 @@ const validateJWT = async (req, res, next) => {
   }
 };
 
-const validResult = (req, res, next) => {
+exports.validResult = (req, res, next) => {
   const err = validationResult(req);
   if (!err.isEmpty()) {
     throw new ErrorResponse(
@@ -38,10 +38,4 @@ const validResult = (req, res, next) => {
     );
   }
   next();
-};
-
-module.export = {
-  emailIsUniqueValidator,
-  validateJWT,
-  validResult,
 };
