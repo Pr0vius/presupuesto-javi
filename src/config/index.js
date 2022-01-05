@@ -4,7 +4,7 @@ require("dotenv").config();
 module.exports = {
   port: process.env.PORT || 3000,
   api: {
-    prefix: "/api/v2",
+    prefix: "/api/v1",
   },
   logger: {
     level: process.env.LOG_LEVEL || "info",

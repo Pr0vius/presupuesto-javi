@@ -1,15 +1,52 @@
 const { validationResult } = require("express-validator");
 const ErrorResponse = require("../../../helpers/ErrorResponse");
-const userRepo = require("../../../repository/User");
+const UserRepository = require("../../../repository/User");
+const TeamRepository = require("../../../repository/Team");
+const EventRepository = require("../../../repository/Event");
 const AuthService = require("../../../services/auth");
-
+const { GLOBAL_ADMIN, GLOBAL_MOD, TEAM_ADMIN } = require("../../../constants");
+// USER / AUTH
 exports.emailIsUniqueValidator = async email => {
-  const userFound = await userRepo.findByEmail(email);
+  const userFound = await UserRepository.findByEmail(email);
   if (userFound) {
-    throw new ErrorResponse(400, undefined, "Username already exist");
+    throw new ErrorResponse(400, undefined, "Email is already registered");
   }
 };
+exports.userExist = async id => {
+  const userFound = await UserRepository.findById(id);
+  if (!userFound) {
+    throw new ErrorResponse(404, undefined, "User doesn't exist");
+  }
+};
+exports.hasRole = (...roles) => {
+  return (req, res, next) => {
+    try {
+      AuthService.validateRole(req.user, ...roles);
+      next();
+    } catch (error) {
+      throw new ErrorResponse(error.code, error.message, error.data);
+    }
+  };
+};
+// TEAM
 
+exports.teamExist = async (req, res, next) => {
+  try {
+    const id = req.params.teamId;
+    const teamFound = await TeamRepository.getOneById(id);
+    req.team = teamFound;
+    next();
+  } catch (err) {
+    next(new ErrorResponse(400, "Operation Failed", "Team doesn't exist"));
+  }
+};
+exports.isMember = (req, res, next) => {
+  const filtered = req.team.members.filter(e => e.user._id === req.user._id);
+  if ((filtered.length <= 0 && req.user.role !== GLOBAL_ADMIN) || GLOBAL_MOD) {
+    throw new ErrorResponse(400, undefined, "User is not on the team");
+  }
+  next();
+};
 exports.validateJWT = async (req, res, next) => {
   try {
     const token = req.header("Authorization");
@@ -19,7 +56,7 @@ exports.validateJWT = async (req, res, next) => {
   } catch (err) {
     next(
       new ErrorResponse(
-        err.status || 400,
+        err.code || 400,
         err.message || "Can't validate the token",
         err.data ||
           "Please provide an authentification token in Authorization header"
@@ -27,6 +64,15 @@ exports.validateJWT = async (req, res, next) => {
     );
   }
 };
+
+// EVENTS
+exports.eventExist = async id => {
+  const eventFound = await EventRepository.findById(id);
+  if (!eventFound) {
+    throw new ErrorResponse(404, undefined, "Event doesn't exist");
+  }
+};
+exports.teamHasEvent = () => {};
 
 exports.validResult = (req, res, next) => {
   const err = validationResult(req);

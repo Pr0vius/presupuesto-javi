@@ -2,18 +2,24 @@ const { check } = require("express-validator");
 const { validResult, emailIsUniqueValidator } = require("./functions");
 
 const firstnameValidator = check("firstname")
+  .notEmpty()
+  .withMessage("Firstname is required")
   .isLength({ max: 50 })
   .withMessage("Name max length is 50 characaters");
 
 const lastnameValidator = check("lastname")
+  .notEmpty()
+  .withMessage("Lastname is required")
   .isLength({ max: 50 })
   .withMessage("Name max length is 50 characaters");
 
 const emailValidator = check("email")
   .notEmpty()
-  .withMessage("Email is required")
+  .withMessage("Email is required");
+const emailRegex = check("email")
   .isEmail()
-  .withMessage("Email is invalid");
+  .withMessage("Email is invalid")
+  .optional();
 
 const emailUnique = check("email")
   .custom(emailIsUniqueValidator)
@@ -25,7 +31,8 @@ const passwordRequired = check("password")
 
 const passwordLength = check("password")
   .isLength({ min: 6 })
-  .withMessage("Password length must be at least 6 characters");
+  .withMessage("Password length must be at least 6 characters")
+  .optional();
 
 const imageValidator = check("img")
   .isURL()
@@ -35,6 +42,7 @@ exports.registerValidations = [
   firstnameValidator,
   lastnameValidator,
   emailValidator,
+  emailRegex,
   emailUnique,
   passwordRequired,
   passwordLength,

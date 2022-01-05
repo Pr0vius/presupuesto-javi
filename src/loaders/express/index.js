@@ -4,6 +4,7 @@ const morgan = require("morgan");
 const cors = require("cors");
 const logger = require("../../helpers/logger");
 const { port, api } = require("../../config");
+const ErrorResponse = require("../../helpers/ErrorResponse");
 
 class ExpressServer {
   constructor() {
@@ -25,6 +26,11 @@ class ExpressServer {
       res.status(200).end();
     });
     this.app.use(`${this.prefix}`, require("../../routes/auth"));
+    this.app.use(`${this.prefix}/team`, require("../../routes/team"));
+    this.app.use(`${this.prefix}/events`, require("../../routes/event"));
+    this.app.use("*", (req, res) => {
+      throw new ErrorResponse(404, "Not Found", "This path doesn't exist");
+    });
   }
 
   _errorHandler() {

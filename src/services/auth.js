@@ -11,7 +11,7 @@ class AuthService {
     const token = await this._generateToken(newUser._id);
 
     return {
-      id: user._id,
+      _id: user._id,
       firstname: user.firstname,
       lastname: user.lastname,
       email: user.email,
@@ -22,21 +22,22 @@ class AuthService {
   }
 
   async login(email, password) {
-    const user = await UserRepository.findUserByEmail(email);
+    const user = await UserRepository.findByEmail(email);
     if (!user) {
       throw new ErrorResponse(400, undefined, "Email or password are wrong");
     }
-    await this._validatePassword(
-      password,
-      user.password,
-      "Email or password are wrong"
-    );
-    const token = this.encrypt(user._id);
+    const validPassword = await bcrypt.compare(password, user.password);
+    if (!validPassword) {
+      throw new ErrorResponse(400, undefined, "Email or password are wrong");
+    }
+    const token = await this._generateToken(user._id);
     return {
       _id: user._id,
-      name: user.name,
-      username: user.username,
+      firstname: user.firstname,
+      lastname: user.lastname,
+      img: user.img,
       email: user.email,
+      role: user.role,
       token,
     };
   }
@@ -51,13 +52,6 @@ class AuthService {
     return await bcrypt.hash(password, 10);
   }
 
-  async _validatePassword(password, encryptedPassword, errorMessage) {
-    const validPassword = await bcrypt.compare(password, encryptedPassword);
-    if (!validPassword) {
-      throw new ErrorResponse(400, undefined, errorMessage);
-    }
-  }
-
   async validateToken(token) {
     if (!token) {
       throw new ErrorResponse(401, "Authentication Failed", "Token Required");
@@ -69,7 +63,7 @@ class AuthService {
     try {
       const decoded = jwt.verify(token, config.jwt.secret);
       const id = decoded.id;
-      const user = await UserRepository.findUserById(id);
+      const user = await UserRepository.findById(id);
       if (!user) {
         throw new ErrorResponse(400, "Authentication Failed", "Invalid Token");
       }
@@ -83,6 +77,13 @@ class AuthService {
     } catch (error) {
       throw new ErrorResponse(401, "Authentication Failed", "Invalid Token");
     }
+  }
+
+  validateRole(user, ...roles) {
+    if (!roles.includes(user.role)) {
+      throw new ErrorResponse(400, "Authorization failed", "Unauthorized user");
+    }
+    return true;
   }
 }
 

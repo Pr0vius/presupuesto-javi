@@ -5,7 +5,7 @@ const AuthService = require("../services/auth");
 exports.login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
-    const data = AuthService.login(email, password);
+    const data = await AuthService.login(email, password);
     res.status(200).json(new Success(200, "Login success", data));
   } catch (err) {
     next(
@@ -30,12 +30,6 @@ exports.register = async (req, res, next) => {
     });
     res.status(200).json(new Success(200, "Register success", data));
   } catch (err) {
-    next(
-      new ErrorResponse(
-        err.code || 500,
-        err.message || "Couldn't Register",
-        err.data || "Something went wrong"
-      )
-    );
+    next(new ErrorResponse(err.code, err.message, err.data));
   }
 };

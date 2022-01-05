@@ -5,12 +5,13 @@ const event = new Schema(
     name: { type: String, required: true },
     description: { type: String, required: true },
     date: { type: Date, required: true },
+    team: { type: Schema.Types.ObjectId, ref: "Team" },
     expenses: [
       {
-        products: String,
-        amount: Number,
-        price: Number,
-        user: { type: Schema.Types.ObjectId, ref: "User" },
+        product_name: { type: String, required: true },
+        amount: { type: Number, required: true },
+        price: { type: Number, required: true },
+        user: { type: Schema.Types.ObjectId, ref: "User", required: true },
       },
     ],
   },
