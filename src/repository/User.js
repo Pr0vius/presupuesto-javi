@@ -4,6 +4,9 @@ class UserRepository {
   async create(user) {
     return await User.create(user);
   }
+  async update(id, update) {
+    return await User.findByIdAndUpdate(id, update);
+  }
   async findUser(user) {
     return await User.findOne({ user });
   }

@@ -50,8 +50,12 @@ exports.getTeam = async (req, res, next) => {
 };
 exports.updateTeam = async (req, res, next) => {
   try {
-    const { name, members } = req.body;
-    const data = await TeamService.update(req.params.teamId, { name, members });
+    const { name, budget, members } = req.body;
+    const data = await TeamService.update(req.params.teamId, {
+      name,
+      members,
+      budget,
+    });
     res.status(200).json(new Success(200, "Team updated succesfully", data));
   } catch (error) {
     next(
@@ -157,7 +161,7 @@ exports.getTeamEvents = (req, res, next) => {
 exports.createTeamEvent = async (req, res, next) => {
   try {
     const { name, description, date } = req.body;
-    const data = await TeamService.createEvent({
+    const data = await TeamService.createEvent(req.team, {
       name,
       description,
       date,

@@ -4,7 +4,7 @@ const UserRepository = require("../../../repository/User");
 const TeamRepository = require("../../../repository/Team");
 const EventRepository = require("../../../repository/Event");
 const AuthService = require("../../../services/auth");
-const { GLOBAL_ADMIN, GLOBAL_MOD, TEAM_ADMIN } = require("../../../constants");
+const { GLOBAL_ADMIN, TEAM_ADMIN } = require("../../../constants");
 // USER / AUTH
 exports.emailIsUniqueValidator = async email => {
   const userFound = await UserRepository.findByEmail(email);
@@ -42,8 +42,12 @@ exports.teamExist = async (req, res, next) => {
 };
 exports.isMember = (req, res, next) => {
   const filtered = req.team.members.filter(e => e.user._id === req.user._id);
-  if ((filtered.length <= 0 && req.user.role !== GLOBAL_ADMIN) || GLOBAL_MOD) {
-    throw new ErrorResponse(400, undefined, "User is not on the team");
+  if (filtered.length <= 0 && req.user.role !== GLOBAL_ADMIN) {
+    throw new ErrorResponse(
+      400,
+      "Operation Failed",
+      "You're not a member of this team"
+    );
   }
   next();
 };

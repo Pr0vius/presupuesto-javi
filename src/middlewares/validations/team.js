@@ -35,6 +35,7 @@ const positionIsString = body("position")
 exports.getTeamsValidations = [validateJWT, validResult];
 exports.createTeamValidations = [
   validateJWT,
+  hasRole(GLOBAL_ADMIN),
   nameRequired,
   nameIsString,
   budgetRequired,

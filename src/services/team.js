@@ -2,7 +2,8 @@ const TeamRepository = require("../repository/Team");
 const EventService = require("./event");
 const EventRepository = require("../repository/Event");
 const ErrorResponse = require("../helpers/ErrorResponse");
-
+const UserRepository = require("../repository/User");
+const { TEAM_MEMBER, USER_ROLE } = require("../constants");
 class TeamService {
   async findAll() {
     return await TeamRepository.getAll();
@@ -33,6 +34,10 @@ class TeamService {
     const team = await TeamRepository.getOneById(teamId);
     team.members.push(member);
     await TeamRepository.update(teamId, team);
+    const user = await UserRepository.findById(member);
+    if (user.role === USER_ROLE) {
+      await UserRepository.update(member, { role: TEAM_MEMBER });
+    }
     return team;
   }
   async updateMember(team, memberId, update) {
@@ -79,23 +84,20 @@ class TeamService {
     return createdEvent;
   }
   async addEventExpenses(team, eventId, expenses) {
-    let totalPrice = 0;
-    expenses.forEach(e => {
-      const totalCurrent = e.price * e.amount;
-      totalPrice += totalCurrent;
-      if (totalPrice > team.budget) {
-        throw new ErrorResponse(
-          400,
-          "Couldn't add event expenses",
-          "Expenses exceeded team funds"
-        );
-      }
-    });
+    let totalPrice = expenses.price * expenses.amount;
+    if (totalPrice > team.budget) {
+      throw new ErrorResponse(
+        400,
+        "Couldn't add event expenses",
+        "Expenses exceeded team funds"
+      );
+    }
     team.budget -= totalPrice;
+    await TeamRepository.update(team._id, { budget: team.budget });
     await EventRepository.update(eventId, {
-      expenses: [...expenses],
+      expenses: expenses,
     });
-    return [...expenses];
+    return expenses;
   }
   async deleteEvent(team, eventId) {
     const filtered = team.events.filter(e => e._id !== eventId);

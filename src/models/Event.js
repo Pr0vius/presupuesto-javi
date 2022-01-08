@@ -4,7 +4,7 @@ const event = new Schema(
   {
     name: { type: String, required: true },
     description: { type: String, required: true },
-    date: { type: Date, required: true },
+    date: { type: String, required: true },
     team: { type: Schema.Types.ObjectId, ref: "Team" },
     expenses: [
       {

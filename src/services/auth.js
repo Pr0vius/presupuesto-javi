@@ -8,15 +8,15 @@ class AuthService {
   async register(user) {
     user.password = await this._encrypt(user.password);
     const newUser = await UserRepository.create(user);
-    const token = await this._generateToken(newUser._id);
-
+    const token = await this._generateToken(newUser._id, newUser.role);
+    console.log(newUser);
     return {
       _id: user._id,
       firstname: user.firstname,
       lastname: user.lastname,
       email: user.email,
       img: user.img,
-      role: user.role,
+      role: newUser.role,
       token,
     };
   }
@@ -30,7 +30,7 @@ class AuthService {
     if (!validPassword) {
       throw new ErrorResponse(400, undefined, "Email or password are wrong");
     }
-    const token = await this._generateToken(user._id);
+    const token = await this._generateToken(user._id, user.role);
     return {
       _id: user._id,
       firstname: user.firstname,
@@ -42,8 +42,8 @@ class AuthService {
     };
   }
 
-  async _generateToken(id) {
-    return jwt.sign({ id }, config.jwt.secret, {
+  async _generateToken(id, role) {
+    return jwt.sign({ id, role }, config.jwt.secret, {
       expiresIn: config.jwt.expires,
     });
   }
@@ -69,10 +69,11 @@ class AuthService {
       }
       return {
         _id: user._id,
-        name: user.name,
-        username: user.username,
+        firstname: user.firstname,
+        lastname: user.lastname,
+        role: user.role,
         email: user.email,
-        company: user.company,
+        img: user.img,
       };
     } catch (error) {
       throw new ErrorResponse(401, "Authentication Failed", "Invalid Token");
@@ -81,6 +82,7 @@ class AuthService {
 
   validateRole(user, ...roles) {
     if (!roles.includes(user.role)) {
+      console.log(user);
       throw new ErrorResponse(400, "Authorization failed", "Unauthorized user");
     }
     return true;

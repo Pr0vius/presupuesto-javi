@@ -27,10 +27,10 @@ const descriptionIsString = body("description")
   .withMessage("Description must be a String")
   .optional();
 const dateIsRequired = body("date").notEmpty().withMessage("Date is Required");
-const dateIsDate = body("date")
+const dateIsString = body("date")
   .notEmpty()
-  .isDate()
-  .withMessage("Date must be a date");
+  .isString()
+  .withMessage("Date must be a string");
 
 const productNameIsRequired = body("product_name")
   .notEmpty()
@@ -65,7 +65,7 @@ exports.createEventValidator = [
   descriptionIsRequired,
   descriptionIsString,
   dateIsRequired,
-  dateIsDate,
+  dateIsString,
   validResult,
 ];
 exports.deleteEventValidator = [
