@@ -28,6 +28,7 @@ class ExpressServer {
     this.app.use(`${this.prefix}`, require("../../routes/auth"));
     this.app.use(`${this.prefix}/team`, require("../../routes/team"));
     this.app.use(`${this.prefix}/events`, require("../../routes/event"));
+    this.app.use(`${this.prefix}/users`, require("../../routes/user"));
     this.app.use("*", (req, res) => {
       throw new ErrorResponse(404, "Not Found", "This path doesn't exist");
     });

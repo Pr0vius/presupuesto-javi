@@ -4,7 +4,7 @@ const UserRepository = require("../../../repository/User");
 const TeamRepository = require("../../../repository/Team");
 const EventRepository = require("../../../repository/Event");
 const AuthService = require("../../../services/auth");
-const { GLOBAL_ADMIN, TEAM_ADMIN } = require("../../../constants");
+const { GLOBAL_ADMIN, ROLES } = require("../../../constants");
 // USER / AUTH
 exports.emailIsUniqueValidator = async email => {
   const userFound = await UserRepository.findByEmail(email);
@@ -27,6 +27,11 @@ exports.hasRole = (...roles) => {
       throw new ErrorResponse(error.code, error.message, error.data);
     }
   };
+};
+exports.validateRole = (role = "") => {
+  if (!ROLES.includes(role)) {
+    throw new ErrorResponse(400, undefined, "Invalid role");
+  }
 };
 // TEAM
 
