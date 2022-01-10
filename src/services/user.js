@@ -4,10 +4,14 @@ class UserService {
     return await UserRepository.findAll();
   }
   async getUser(id) {
-    return await UserRepository.findById(id);
+    const { _id, firstname, lastname, email, img, role } =
+      await UserRepository.findById(id);
+    return { _id, firstname, lastname, email, img, role };
   }
   async updateUser(id, update) {
-    return await UserRepository.update(id, update);
+    const { _id, firstname, lastname, email, img, role } =
+      await UserRepository.update(id, update);
+    return { _id, firstname, lastname, email, img, role };
   }
 }
 
