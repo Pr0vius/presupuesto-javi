@@ -2,7 +2,7 @@ const User = require("../models/User");
 
 class UserRepository {
   async findAll() {
-    return await User.find();
+    return await User.find().select("-password -__v");
   }
   async create(user) {
     return await User.create(user);
